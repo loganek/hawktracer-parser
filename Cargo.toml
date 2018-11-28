@@ -1,0 +1,9 @@
+[package]
+name = "hawktracer-parser"
+version = "0.2.0"
+authors = ["Marcin Kolny <marcin.kolny@gmail.com>"]
+license = "MIT"
+description = "Parser library for HawkTracer data format"
+edition = "2018"
+
+[dependencies]
