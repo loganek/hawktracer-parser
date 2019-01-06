@@ -3,10 +3,10 @@ use crate::event_klass::EventKlass;
 
 #[derive(Copy, Clone)]
 pub enum CoreEventKlassId {
+    Endianness = 0,
     Base = 1,
-    Endianness = 2,
-    KlassInfo = 3,
-    FieldInfo = 4,
+    KlassInfo = 2,
+    FieldInfo = 3,
 }
 
 impl CoreEventKlassId {
