@@ -262,7 +262,7 @@ mod tests {
         let event = event.flat_event();
 
         assert_eq!(2, event.values.len());
-        assert_eq!(event.get_value_u64("base").unwrap(), 2);;
+        assert_eq!(event.get_value_u64("base").unwrap(), 2);
         assert_eq!(event.get_value_string("name").unwrap(), "some_name");
     }
 }

@@ -1,5 +1,5 @@
 pub struct DataProvider {
-    reader: Box<std::io::Read>,
+    reader: Box<dyn std::io::Read>,
     buffer: [u8; 512],
     data_pointer: usize,
     data_available: usize,
@@ -13,7 +13,7 @@ pub enum DataError {
 }
 
 impl DataProvider {
-    pub fn new(reader: Box<std::io::Read>) -> DataProvider {
+    pub fn new(reader: Box<dyn std::io::Read>) -> DataProvider {
         DataProvider {
             reader,
             buffer: [0; 512],
