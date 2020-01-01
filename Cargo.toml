@@ -6,6 +6,10 @@ license = "MIT"
 description = "Parser library for HawkTracer data format"
 edition = "2018"
 
+[badges]
+appveyor = { repository = "loganek/hawktracer-parser" }
+travis-ci = { repository = "loganek/hawktracer-parser" }
+
 [dependencies]
 
 [dev-dependencies]
