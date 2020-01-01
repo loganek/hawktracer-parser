@@ -1,8 +1,13 @@
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum DataType {
     U8,
+    I8,
+    U16,
+    I16,
     U32,
+    I32,
     U64,
+    I64,
     Str,
     Struct,
 }
@@ -13,7 +18,7 @@ pub enum ErrorKind {
     InvalidType,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Event {
     klass_id: u32,
     values: std::collections::HashMap<String, Value>,
@@ -48,11 +53,16 @@ impl std::fmt::Display for ValueError {
 
 // Keep in sync with DataType
 // TODO: can we merge those two enums?
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Value {
     U8(u8),
+    I8(i8),
+    U16(u16),
+    I16(i16),
     U32(u32),
+    I32(i32),
     U64(u64),
+    I64(i64),
     Str(String),
     Struct(Event),
 }
@@ -61,8 +71,13 @@ impl std::fmt::Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Value::U8(v) => write!(f, "{}", v),
+            Value::I8(v) => write!(f, "{}", v),
+            Value::U16(v) => write!(f, "{}", v),
+            Value::I16(v) => write!(f, "{}", v),
             Value::U32(v) => write!(f, "{}", v),
+            Value::I32(v) => write!(f, "{}", v),
             Value::U64(v) => write!(f, "{}", v),
+            Value::I64(v) => write!(f, "{}", v),
             Value::Str(v) => write!(f, "\"{}\"", v),
             Value::Struct(v) => write!(f, "<Event {}>", v.get_klass_id()),
         }
@@ -109,8 +124,13 @@ impl Event {
     }
 
     make_field_getter!(get_value_u8, U8, u8);
+    make_field_getter!(get_value_i8, I8, i8);
+    make_field_getter!(get_value_u16, U16, u16);
+    make_field_getter!(get_value_i16, I16, i16);
     make_field_getter!(get_value_u32, U32, u32);
+    make_field_getter!(get_value_i32, I32, i32);
     make_field_getter!(get_value_u64, U64, u64);
+    make_field_getter!(get_value_i64, I64, i64);
     make_field_getter_ref!(get_value_string, Str, &String);
     make_field_getter_ref!(get_value_struct, Struct, &Event);
 

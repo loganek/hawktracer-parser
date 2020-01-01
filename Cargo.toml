@@ -7,3 +7,6 @@ description = "Parser library for HawkTracer data format"
 edition = "2018"
 
 [dependencies]
+
+[dev-dependencies]
+hawktracer_parser_test_utilities = { path = "test_utilities" }

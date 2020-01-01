@@ -1,0 +1,5 @@
+[package]
+name = "hawktracer_parser_test_utilities"
+authors = ["Marcin Kolny <mkolny@amazon.com>"]
+edition = "2018"
+version = "0.1.0"

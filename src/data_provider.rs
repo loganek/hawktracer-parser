@@ -12,6 +12,17 @@ pub enum DataError {
     IOError(std::io::Error),
 }
 
+impl PartialEq for DataError {
+    fn eq(&self, other: &DataError) -> bool {
+        match (self, other) {
+            (DataError::IOError(_e1), DataError::IOError(_e2)) => true, // Assume error is the same if the type matches
+            (DataError::EndOfStream, DataError::EndOfStream) => true,
+            (DataError::Utf8Error, DataError::Utf8Error) => true,
+            _ => false,
+        }
+    }
+}
+
 impl DataProvider {
     pub fn new(reader: Box<dyn std::io::Read>) -> DataProvider {
         DataProvider {
@@ -80,50 +91,17 @@ impl DataProvider {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use super::*;
+    use hawktracer_parser_test_utilities::FakeDataReader;
 
     fn buffers_equal(b1: &[u8], b2: &[u8]) -> usize {
         return b1.iter().zip(b2).map(|(a, b)| assert_eq!(a, b)).count();
     }
 
-    struct FakeDataReader {
-        buffer: [u8; 4],
-        pointer: usize,
-        failing: bool,
-    }
-
-    impl FakeDataReader {
-        pub fn new(buffer: [u8; 4], failing: bool) -> FakeDataReader {
-            FakeDataReader {
-                buffer,
-                pointer: 0,
-                failing,
-            }
-        }
-    }
-
-    impl std::io::Read for FakeDataReader {
-        fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-            if self.failing {
-                return Err(std::io::Error::new(std::io::ErrorKind::Other, "Fail"));
-            }
-            let copy_size = std::cmp::min(buf.len(), self.buffer.len() - self.pointer);
-            match copy_size {
-                0 => Ok(0),
-                _v => {
-                    buf[..copy_size]
-                        .copy_from_slice(&self.buffer[self.pointer..self.pointer + copy_size]);
-                    self.pointer = self.pointer + copy_size;
-                    Ok(copy_size)
-                }
-            }
-        }
-    }
-
     #[test]
     fn should_not_set_eos_if_still_have_data() {
-        let mut provider = DataProvider::new(Box::new(FakeDataReader::new([1, 2, 3, 4], false)));
+        let mut provider = DataProvider::new(Box::new(FakeDataReader::new(vec![1, 2], false)));
         let mut buf = [0u8; 2];
         assert!(provider.read_bytes(&mut buf).is_ok());
 
@@ -132,7 +110,8 @@ mod tests {
 
     #[test]
     fn should_set_eos_if_try_to_read_too_much_data() {
-        let mut provider = DataProvider::new(Box::new(FakeDataReader::new([1, 2, 3, 4], false)));
+        let mut provider =
+            DataProvider::new(Box::new(FakeDataReader::new(vec![1, 2, 3, 4], false)));
         let mut buf = [0u8; 5];
         assert!(provider.read_bytes(&mut buf).is_err());
 
@@ -141,7 +120,7 @@ mod tests {
 
     #[test]
     fn should_fail_if_data_reader_fails() {
-        let mut provider = DataProvider::new(Box::new(FakeDataReader::new([1, 2, 3, 4], true)));
+        let mut provider = DataProvider::new(Box::new(FakeDataReader::new(vec![1, 2], true)));
         let mut buf = [0u8; 2];
 
         assert!(provider.read_bytes(&mut buf).is_err());
@@ -149,7 +128,7 @@ mod tests {
 
     #[test]
     fn read_string_should_not_fail_if_valid_string() {
-        let mut provider = DataProvider::new(Box::new(FakeDataReader::new([65, 66, 0, 3], false)));
+        let mut provider = DataProvider::new(Box::new(FakeDataReader::new(vec![65, 66, 0], false)));
 
         let message = provider.read_string();
         assert!(message.is_ok());
@@ -159,7 +138,7 @@ mod tests {
     #[test]
     fn read_string_should_fail_if_no_zero_at_the_end() {
         let mut provider =
-            DataProvider::new(Box::new(FakeDataReader::new([65, 66, 67, 68], false)));
+            DataProvider::new(Box::new(FakeDataReader::new(vec![65, 66, 67, 68], false)));
 
         let message = provider.read_string();
         assert!(message.is_err());
@@ -167,7 +146,8 @@ mod tests {
 
     #[test]
     fn read_string_should_fail_if_non_utf8_string() {
-        let mut provider = DataProvider::new(Box::new(FakeDataReader::new([65, 220, 0, 5], false)));
+        let mut provider =
+            DataProvider::new(Box::new(FakeDataReader::new(vec![65, 220, 0, 5], false)));
 
         let message = provider.read_string();
         assert!(message.is_err());
