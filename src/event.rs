@@ -1,3 +1,5 @@
+use fnv;
+
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum DataType {
     U8,
@@ -21,7 +23,7 @@ pub enum ErrorKind {
 #[derive(Debug, PartialEq)]
 pub struct Event {
     klass_id: u32,
-    values: std::collections::HashMap<String, Value>,
+    values: std::collections::HashMap<String, Value, fnv::FnvBuildHasher>,
 }
 
 #[derive(Debug)]
@@ -119,7 +121,7 @@ macro_rules! make_field_getter_ref {
 }
 
 impl Event {
-    pub fn new(klass_id: u32, values: std::collections::HashMap<String, Value>) -> Event {
+    pub fn new(klass_id: u32, values: std::collections::HashMap<String, Value, fnv::FnvBuildHasher>) -> Event {
         Event { klass_id, values }
     }
 
@@ -138,7 +140,7 @@ impl Event {
         self.values.get(name)
     }
 
-    pub fn get_all_values(&self) -> &std::collections::HashMap<String, Value> {
+    pub fn get_all_values(&self) -> &std::collections::HashMap<String, Value, fnv::FnvBuildHasher> {
         &self.values
     }
 
@@ -147,14 +149,14 @@ impl Event {
     }
 
     pub fn flat_event(self) -> Event {
-        let mut new_values = std::collections::HashMap::<String, Value>::new();
+        let mut new_values = std::collections::HashMap::<String, Value, fnv::FnvBuildHasher>::default();
         let klass_id = self.get_klass_id();
         self.flat_event_internal(&mut new_values);
 
         Event::new(klass_id, new_values)
     }
 
-    fn flat_event_internal(mut self, new_values: &mut std::collections::HashMap<String, Value>) {
+    fn flat_event_internal(mut self, new_values: &mut std::collections::HashMap<String, Value, fnv::FnvBuildHasher>) {
         let base_value = self.values.remove("base");
 
         for (name, value) in self.values {
