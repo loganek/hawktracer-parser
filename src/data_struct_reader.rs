@@ -52,7 +52,7 @@ impl<'a> DataStructReader<'a> {
     }
 
     fn read_event_internal(&mut self, klass: &EventKlass) -> Result<Event, ReadEventError> {
-        let mut values: std::collections::HashMap<String, Value> = std::collections::HashMap::new();
+        let mut values = std::collections::HashMap::<String, Value, fnv::FnvBuildHasher>::default();
         for field in klass.get_fields() {
             values.insert(field.get_name().clone(), self.read_field(&field)?);
         }

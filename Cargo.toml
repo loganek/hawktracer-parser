@@ -11,6 +11,7 @@ appveyor = { repository = "loganek/hawktracer-parser" }
 travis-ci = { repository = "loganek/hawktracer-parser" }
 
 [dependencies]
+fnv = "1.0"
 
 [dev-dependencies]
 hawktracer_parser_test_utilities = { path = "test_utilities" }
